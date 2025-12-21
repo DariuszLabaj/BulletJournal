@@ -291,7 +291,7 @@ class BulletJournal {
             }
             push();
             tasks.forEach((task, i) => {
-                fill(getCSSVariable('--primary'));
+                fill(getCSSVariable('--tertiary-fixed-dim'));
                 const value = grid[d]?.[task.id] ?? 0;
                 const padding = 10;
                 const cellX = x + (1 + i) * CELL + padding;
@@ -381,7 +381,7 @@ class BulletJournal {
             }
             push();
             tasks.forEach((task, i) => {
-                fill(getCSSVariable('--primary'));
+                fill(getCSSVariable('--tertiary-fixed-dim'));
                 const value = grid[d]?.[task.id] ?? 0;
                 const padding = 10;
                 const cellY = y + (1 + i) * CELL + padding;

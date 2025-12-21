@@ -1,3 +1,4 @@
+const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
 let state = LOADING;
 let loadingProgress = { value: 0 };
 let progressBar;
@@ -48,7 +49,7 @@ function windowResized() {
     }
 }
 
-function mousePressed() {
+function handleInputPress(x, y) {
     if (debugConfirmActive) {
         if (debugYesPressed) {
             debugConfirmCallback?.();
@@ -65,16 +66,48 @@ function mousePressed() {
 
         return; // prevent clicks passing through
     }
-    switch (state) {
-        case NEW_USER_SETUP:
-            userData.mousePressed();
-            break;
-        case MAIN:
-            journal.touchStarted();
-            journal.mousePressed();
-            break;
+
+    if (state === NEW_USER_SETUP) {
+        userData.mousePressedAt(x, y);
+    } else if (state === MAIN) {
+        journal.touchStartedAt(x, y);
     }
 }
+
+function mousePressed() {
+    if (!isMobile) handleInputPress(mouseX, mouseY);
+}
+
+function touchStarted() {
+    if (isMobile) handleInputPress(mouseX, mouseY);
+}
+
+function mouseDragged() {
+    if (!isMobile && state === MAIN && journal) {
+        journal.touchMoved();
+        return false;
+    }
+}
+
+
+function touchMoved() {
+    if (isMobile && state === MAIN && journal) {
+        journal.touchMoved();
+        return false;
+    }
+}
+function mouseReleased() {
+    if (!isMobile && state === MAIN && journal) {
+        journal.touchEnded();
+    }
+}
+
+function touchEnded() {
+    if (isMobile && state === MAIN && journal) {
+        journal.touchEnded();
+    }
+}
+
 function keyPressed(event) {
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
         event.preventDefault();
@@ -157,40 +190,4 @@ function drawDebugOverlay() {
     debugNoPressed = drawButton(noX + btnW / 2, y + btnH / 2, btnW, btnH, "NO");
 
     pop();
-}
-
-// function touchStarted() {
-//     switch (state) {
-//         case MAIN:
-//             journal.touchStarted();
-//             return false;
-//     }
-// }
-
-// function touchMoved() {
-//     switch (state) {
-//         case MAIN:
-//             journal.touchMoved();
-//             return false;
-//     }
-// }
-
-// function touchEnded() {
-//     switch (state) {
-//         case MAIN:
-//             journal.touchEnded();
-//             return false;
-//     }
-// }
-
-function mouseDragged() {
-    if (state === MAIN && journal) {
-        journal.touchMoved();
-    }
-}
-
-function mouseReleased() {
-    if (state === MAIN && journal) {
-        journal.touchEnded();
-    }
 }
