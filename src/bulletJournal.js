@@ -19,20 +19,16 @@ class BulletJournal {
         this._transitionSpeed = 0.01;
 
         this._ui = {
-            toggleTheme: false,
-            openTodayLog: false,
-            importData: false,
-            exportData: false,
-            openSettings: false,
-            openHistory: false,
-            backButton: false,
-            addTaskButton: false,
-            removeTaskButton: false,
-            prevMonth: false,
-            nextMonth: false,
-            addTaskModal: false,
-            removeTaskModal: false,
-            setTaskStatusModel: false,
+            toggleTheme: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            openTodayLog: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            importData: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            exportData: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            backButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            addTaskButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            removeTaskButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            prevMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            nextMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            setTaskStatusModel: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
         };
 
         this._zones = {
@@ -405,7 +401,8 @@ class BulletJournal {
     touchStarted(pos_x, pos_y) {
         switch (this._screen) {
             case BulletJournal.JournalScreen.OVERVIEW:
-                if (this._ui.openTodayLog) {
+                // (pointInRect(x, y, debugYesPressed.bounds))
+                if (pointInRect(pos_x, pos_y, this._ui.openTodayLog.bounds)) {
                     const now = new Date();
                     this._showData = this._userData.loadMonth(
                         now.getFullYear(),
@@ -414,8 +411,8 @@ class BulletJournal {
                     this._showData.day = now.getDate();
                     this._transitionTo(BulletJournal.JournalScreen.TODAYS_LOG);
                 }
-                if (this._ui.toggleTheme) toggleTheme();
-                if (this._ui.importData) {
+                if (pointInRect(pos_x, pos_y, this._ui.toggleTheme.bounds)) toggleTheme();
+                if (pointInRect(pos_x, pos_y, this._ui.importData.bounds)) {
                     // TODO: reuse hidden file input instead of recreating
                     const input = document.createElement('input');
                     input.type = 'file';
@@ -427,7 +424,7 @@ class BulletJournal {
                     };
                     input.click();
                 }
-                if (this._ui.exportData) {
+                if (pointInRect(pos_x, pos_y, this._ui.exportData.bounds)) {
                     // TODO: reuse hidden anchor element
                     const blob = new Blob([this._userData.export()], { type: 'application/json' });
                     const a = document.createElement('a');
@@ -437,11 +434,11 @@ class BulletJournal {
                 }
                 break;
             case BulletJournal.JournalScreen.TODAYS_LOG:
-                if (this._ui.backButton) {
+                if (pointInRect(pos_x, pos_y, this._ui.backButton.bounds)) {
                     this._transitionTo(BulletJournal.JournalScreen.OVERVIEW);
                 }
-                if (this._ui.prevMonth || this._ui.nextMonth) {
-                    const delta = this._ui.prevMonth ? -1 : 1;
+                if (pointInRect(pos_x, pos_y, this._ui.prevMonth.bounds) || pointInRect(pos_x, pos_y, this._ui.nextMonth.bounds)) {
+                    const delta = pointInRect(pos_x, pos_y, this._ui.prevMonth.bounds) ? -1 : 1;
                     let { year, month } = this._showData;
 
                     month += delta;
@@ -451,7 +448,7 @@ class BulletJournal {
                     this._showData = this._userData.loadMonth(year, month);
                     this._scroll.x = this._scroll.y = 0;
                 }
-                if (this._ui.addTaskButton) {
+                if (pointInRect(pos_x, pos_y, this._ui.addTaskButton.bounds)) {
                     const label = prompt("New task name:");
                     if (label) {
                         this._userData.addTask(
@@ -462,7 +459,7 @@ class BulletJournal {
                         this._showData = this._userData.loadMonth(this._showData.year, this._showData.month);
                     }
                 }
-                if (this._ui.removeTaskButton) {
+                if (pointInRect(pos_x, pos_y, this._ui.removeTaskButton.bounds)) {
                     const list = this._showData.tasks.map(t => `${t.id}:${t.label}`).join('\n');
                     const id = prompt(`Remove task (enter ID):\n${list}`);
                     if (id) {

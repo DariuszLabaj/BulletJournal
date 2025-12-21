@@ -27,7 +27,7 @@ class UserData {
         this._ui = {
             activeField: 'name',
             nameBuffer: '',
-            buttonHover: false,
+            buttonHover: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
         };
 
         this._bulletJournal = [];
@@ -306,7 +306,7 @@ class UserData {
             this._hiddenInput.elt.blur();
         }
 
-        if (this._ui.buttonHover) {
+        if (pointInRect(this._ui.buttonHover.bounds)) {
             this._confirmNewUser();
         }
 

@@ -39,6 +39,12 @@ function drawButton(cx, cy, w, h, label, x_offset = 0, y_offset = 0) {
   push();
   const x = cx - w / 2;
   const y = cy - h / 2 - 1;
+  const bounds = {
+    x: x - x_offset,
+    y: y - y_offset,
+    w: w,
+    h: h,
+  }
   const isHover = mouseX >= x - x_offset && mouseX <= x - x_offset + w && mouseY >= y - y_offset && mouseY <= y - y_offset + h;
   fill(isHover ? getCSSVariable('--primary-fixed-dim') : getCSSVariable('--primary'));
   rect(x, y, w, h, min(h/2, w/2));
@@ -47,7 +53,7 @@ function drawButton(cx, cy, w, h, label, x_offset = 0, y_offset = 0) {
   SetFontSize(18);
   text(label, cx, cy);
   pop();
-  return isHover;
+  return { bounds, isHover};
 }
 
 function pointInRect(px, py, r) {

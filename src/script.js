@@ -1,4 +1,3 @@
-console.log(navigator.userAgent);
 const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
 let state = LOADING;
 let loadingProgress = { value: 0 };
@@ -8,8 +7,8 @@ let journal = new BulletJournal();
 
 let debugConfirmActive = false;
 let debugConfirmCallback = null;
-let debugYesPressed = false;
-let debugNoPressed = false;
+let debugYesPressed = { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false};
+let debugNoPressed = { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false};
 let font;
 let materialFont;
 
@@ -19,38 +18,6 @@ async function setup() {
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
     userData.initInput();
-    logm(navigator.userAgent);
-    logm(`${isMobile}`);
-}
-
-const devLog = [];
-
-function logm(...args) {
-    devLog.push(
-        args.map(a => typeof a === 'object'
-            ? JSON.stringify(a)
-            : String(a)
-        ).join(' ')
-    );
-    if (devLog.length > 12) devLog.shift();
-    console.log(...args);
-}
-
-function drawDevConsole() {
-    push();
-    fill(0, 200);
-    rect(0, height - 180, width, 180);
-
-    fill(0, 255, 0);
-    textSize(12);
-    textAlign(LEFT, TOP);
-
-    let y = height - 180 + 8;
-    for (const line of devLog) {
-        text(line, 8, y, width - 16);
-        y += 14;
-    }
-    pop();
 }
 
 function draw() {
@@ -71,9 +38,6 @@ function draw() {
         // other states...
     }
     drawDebugOverlay();
-    if (isMobile || true) {
-        drawDevConsole();
-    }
 }
 
 function windowResized() {
@@ -88,14 +52,14 @@ function windowResized() {
 
 function handleInputPress(x, y) {
     if (debugConfirmActive) {
-        if (debugYesPressed) {
+        if (pointInRect(x, y, debugYesPressed.bounds)) {
             debugConfirmCallback?.();
             debugConfirmActive = false;
             debugConfirmCallback = null;
             return;
         }
 
-        if (debugNoPressed) {
+        if (pointsInRect(x, y, debugNoPressed.bounds)) {
             debugConfirmActive = false;
             debugConfirmCallback = null;
             return;
@@ -112,51 +76,23 @@ function handleInputPress(x, y) {
 }
 
 function mousePressed() {
-    logm(`mouse pressed ${mouseX}, ${mouseY}`)
     handleInputPress(mouseX, mouseY);
     return false;
 }
 
-// function touchStarted() {
-//     logm("touchStarted")
-//     handleInputPress(mouseX, mouseY);
-//     return false;
-// }
-
-// function touchStarted() {
-//     if (isMobile) handleInputPress(mouseX, mouseY);
-// }
-
 function mouseDragged() {
     if (state === MAIN && journal) {
-        logm('Handling mouseDragged');
         journal.touchMoved(mouseX, mouseY);
     }
     return false;
 }
 
-
-// function touchMoved() {
-//     if (isMobile && state === MAIN && journal) {
-//         logm('Handling touchMoved');
-//         journal.touchMoved(mouseX, mouseY);
-//         return false;
-//     }
-// }
 function mouseReleased() {
     if (state === MAIN && journal) {
-        logm('Handling mouseReleased');
         journal.touchEnded(mouseX, mouseY);
     }
     return false;
 }
-
-// function touchEnded() {
-//     if (isMobile && state === MAIN && journal) {
-//         logm('Handling touchEnded');
-//         journal.touchEnded(mouseX, mouseY);
-//     }
-// }
 
 function keyPressed(event) {
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
