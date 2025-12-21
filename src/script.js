@@ -112,7 +112,7 @@ function handleInputPress(x, y) {
 }
 
 function mousePressed() {
-    logm(`mouse pressed ${mouseX}, ${mousey}, ${touchX}, ${touchY}`)
+    logm(`mouse pressed ${mouseX}, ${mouseY}, ${touchX}, ${touchY}`)
     handleInputPress(mouseX, mouseY);
     return false;
 }
