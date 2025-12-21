@@ -36,13 +36,13 @@ function logm(...args) {
 function drawDevConsole() {
     push();
     fill(0, 200);
-    rect(0, 0, width, 180);
+    rect(0, height - 180, width, 180);
 
     fill(0, 255, 0);
     textSize(12);
     textAlign(LEFT, TOP);
 
-    let y = 8;
+    let y = height - 180 + 8;
     for (const line of devLog) {
         text(line, 8, y, width - 16);
         y += 14;
@@ -68,7 +68,7 @@ function draw() {
         // other states...
     }
     drawDebugOverlay();
-    if (isMobile) {
+    if (isMobile || true) {
         drawDevConsole();
     }
 }
