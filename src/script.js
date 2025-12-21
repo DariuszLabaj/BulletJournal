@@ -80,6 +80,10 @@ function mousePressed() {
     return false;
 }
 
+function touchStarted() {
+    return false;
+}
+
 function mouseDragged() {
     if (state === MAIN && journal) {
         journal.touchMoved(mouseX, mouseY);
