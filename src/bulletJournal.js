@@ -286,6 +286,11 @@ class BulletJournal {
                 text(rowText, x + CELL / 2, y_offset + CELL / 2);
             }
             push();
+            drawingContext.save();
+            drawingContext.beginPath();
+            drawingContext.rect(x + CELL, y + HEADER, total_width, total_height);
+            drawingContext.clip();
+            translate(-this._scroll.x, 0);
             tasks.forEach((task, i) => {
                 fill(getCSSVariable('--tertiary-fixed-dim'));
                 const value = grid[d]?.[task.id] ?? 0;
@@ -296,6 +301,7 @@ class BulletJournal {
                     rect(cellX, y_offset + padding, CELL - 2 * padding, fillH, padding / 2)
                 }
             });
+            drawingContext.restore();
             pop();
             fill(getCSSVariable('--surface-container-lowest'));
             rect(x, y_offset - 2 + CELL, total_width, 4, 2);
@@ -376,6 +382,11 @@ class BulletJournal {
                 text(columnText, x_offset + CELL / 2, y + CELL / 2);
             }
             push();
+            drawingContext.save();
+            drawingContext.beginPath();
+            drawingContext.rect(x + HEADER, y + CELL, total_width, total_height);
+            drawingContext.clip();
+            translate(0, -this._scroll.y);
             tasks.forEach((task, i) => {
                 fill(getCSSVariable('--tertiary-fixed-dim'));
                 const value = grid[d]?.[task.id] ?? 0;
@@ -386,6 +397,7 @@ class BulletJournal {
                     rect(x_offset + padding, cellY, fillH, CELL - 2 * padding, padding / 2)
                 }
             });
+            drawingContext.restore();
             pop();
             fill(getCSSVariable('--surface-container-lowest'));
             rect(x_offset - 2 + CELL, y, 4, total_height, 2);

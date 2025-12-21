@@ -27,7 +27,7 @@ class UserData {
         this._ui = {
             activeField: 'name',
             nameBuffer: '',
-            buttonHover: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            buttonHover: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
         };
 
         this._bulletJournal = [];
@@ -37,6 +37,8 @@ class UserData {
             navigator.userLanguage ||
             navigator.browserLanguage;
         this._hiddenInput = null;
+        this._lastPressTime = 0;
+        this._focusLockUntil = 0;
     }
 
     initInput() {
@@ -285,6 +287,12 @@ class UserData {
     mousePressed(pos_x, pos_y) {
         if (this._scene !== UserData.UserScene.NEW_USER) return;
 
+        const now = millis();
+
+        if (now - this._lastPressTime < 250) return;
+
+        this._lastPressTime = now;
+
         const centerX = width / 2;
         const startY = height / 2 - 60;
         const fieldWidth = 300;
@@ -299,9 +307,13 @@ class UserData {
 
         if (pointInRect(pos_x, pos_y, nameRect)) {
             this._ui.activeField = 'name';
+            this._focusLockUntil = now + 500; // 🔐 lock focus for 500ms
             this._hiddenInput.elt.focus();
         } else {
-            // Clicked outside: lose focus
+            if (now > this._focusLockUntil && this._ui.activeField === 'name') {
+                this._ui.activeField = null;
+                this._hiddenInput.elt.blur();
+            }
             this._ui.activeField = null;
             this._hiddenInput.elt.blur();
         }
