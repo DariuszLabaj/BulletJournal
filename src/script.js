@@ -69,9 +69,9 @@ function handleInputPress(x, y) {
     }
 
     if (state === NEW_USER_SETUP) {
-        userData.mousePressedAt(x, y);
+        userData.mousePressed(x, y);
     } else if (state === MAIN) {
-        journal.touchStartedAt(x, y);
+        journal.touchStarted(x, y);
     }
 }
 
@@ -80,12 +80,12 @@ function mousePressed() {
 }
 
 function touchStarted() {
-    if (isMobile) handleInputPress(mouseX, mouseY);
+    if (isMobile) handleInputPress(touchX, touchY);
 }
 
 function mouseDragged() {
     if (!isMobile && state === MAIN && journal) {
-        journal.touchMoved();
+        journal.touchMoved(mouseX, mouseY);
         return false;
     }
 }
@@ -93,19 +93,19 @@ function mouseDragged() {
 
 function touchMoved() {
     if (isMobile && state === MAIN && journal) {
-        journal.touchMoved();
+        journal.touchMoved(touchX, touchY);
         return false;
     }
 }
 function mouseReleased() {
     if (!isMobile && state === MAIN && journal) {
-        journal.touchEnded();
+        journal.touchEnded(mouseX, mouseY);
     }
 }
 
 function touchEnded() {
     if (isMobile && state === MAIN && journal) {
-        journal.touchEnded();
+        journal.touchEnded(touchX, touchY);
     }
 }
 

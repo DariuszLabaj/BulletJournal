@@ -402,7 +402,7 @@ class BulletJournal {
     }
 
 
-    mousePressed() {
+    touchStarted(pos_x, pos_y) {
         switch (this._screen) {
             case BulletJournal.JournalScreen.OVERVIEW:
                 if (this._ui.openTodayLog) {
@@ -472,24 +472,19 @@ class BulletJournal {
                 }
                 break;
         }
-    }
-    keyPressed(key) {
-
-    }
-    touchStarted() {
         this._touch.active = true;
-        this._touch.startX = mouseX;
-        this._touch.startY = mouseY;
-
-        if (this._pointInZone(mouseX, mouseY, this._zones.daysHeader)) {
+        this._touch.startX = pos_x;
+        this._touch.startY = pos_y;
+    
+        if (this._pointInZone(pos_x, pos_y, this._zones.daysHeader)) {
             this._touch.scrollMode = 'days';
         }
-        else if (this._pointInZone(mouseX, mouseY, this._zones.taskLabels)) {
+        else if (this._pointInZone(pos_x, pos_y, this._zones.taskLabels)) {
             this._touch.scrollMode = 'tasks';
         }
         else {
             // Todo Determinate Task id adn day by touch position with relation of scroll
-            const cell = this._getCellFromPosition(mouseX, mouseY);
+            const cell = this._getCellFromPosition(pos_x, pos_y);
             if (cell) {
                 this._touch.cell.day = cell.day;
                 this._touch.cell.taskID = cell.taskID;
@@ -517,11 +512,11 @@ class BulletJournal {
         }
         return { day: dayIndex, taskID: task.id };
     }
-    touchMoved() {
+    touchMoved(pos_x, pos_y) {
         if (!this._touch.active || !this._touch.scrollMode) return;
 
-        const dx = mouseX - this._touch.startX;
-        const dy = mouseY - this._touch.startY;
+        const dx = pos_x - this._touch.startX;
+        const dy = pos_y - this._touch.startY;
 
         if (this._touch.scrollMode === 'days') {
             isVertical()
@@ -533,10 +528,10 @@ class BulletJournal {
                 ? this._scroll.x = constrain(this._scroll.x - dx, 0, this._scroll.maxX)
                 : this._scroll.y = constrain(this._scroll.y - dy, 0, this._scroll.maxY);
         }
-        this._touch.startX = mouseX;
-        this._touch.startY = mouseY;
+        this._touch.startX = pos_x;
+        this._touch.startY = pos_y;
     }
-    touchEnded() {
+    touchEnded(pos_x, pos_y) {
         this._touch.active = false;
         this._touch.scrollMode = null;
 
