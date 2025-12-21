@@ -115,6 +115,10 @@ function mousePressed() {
     handleInputPress(mouseX, mouseY);
 }
 
+function touchStarted() {
+    logm("TEst")
+}
+
 // function touchStarted() {
 //     if (isMobile) handleInputPress(mouseX, mouseY);
 // }
