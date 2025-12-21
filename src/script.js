@@ -112,15 +112,15 @@ function handleInputPress(x, y) {
 }
 
 function mousePressed() {
-    if (!isMobile) handleInputPress(mouseX, mouseY);
+    handleInputPress(mouseX, mouseY);
 }
 
-function touchStarted() {
-    if (isMobile) handleInputPress(mouseX, mouseY);
-}
+// function touchStarted() {
+//     if (isMobile) handleInputPress(mouseX, mouseY);
+// }
 
 function mouseDragged() {
-    if (!isMobile && state === MAIN && journal) {
+    if (state === MAIN && journal) {
         logm('Handling mouseDragged');
         journal.touchMoved(mouseX, mouseY);
         return false;
@@ -128,26 +128,26 @@ function mouseDragged() {
 }
 
 
-function touchMoved() {
-    if (isMobile && state === MAIN && journal) {
-        logm('Handling touchMoved');
-        journal.touchMoved(mouseX, mouseY);
-        return false;
-    }
-}
+// function touchMoved() {
+//     if (isMobile && state === MAIN && journal) {
+//         logm('Handling touchMoved');
+//         journal.touchMoved(mouseX, mouseY);
+//         return false;
+//     }
+// }
 function mouseReleased() {
-    if (!isMobile && state === MAIN && journal) {
+    if (state === MAIN && journal) {
         logm('Handling mouseReleased');
         journal.touchEnded(mouseX, mouseY);
     }
 }
 
-function touchEnded() {
-    if (isMobile && state === MAIN && journal) {
-        logm('Handling touchEnded');
-        journal.touchEnded(mouseX, mouseY);
-    }
-}
+// function touchEnded() {
+//     if (isMobile && state === MAIN && journal) {
+//         logm('Handling touchEnded');
+//         journal.touchEnded(mouseX, mouseY);
+//     }
+// }
 
 function keyPressed(event) {
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'r') {
