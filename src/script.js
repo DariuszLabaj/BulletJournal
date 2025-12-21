@@ -18,6 +18,8 @@ async function setup() {
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
     userData.initInput();
+    logm(navigator.userAgent);
+    logm(`${isMobile}`);
 }
 
 const devLog = [];
