@@ -28,7 +28,8 @@ class BulletJournal {
             removeTaskButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
             prevMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
             nextMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            setTaskStatusModel: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
+            setTaskStatusModel: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            toggleFullscreen: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
         };
 
         this._zones = {
@@ -137,6 +138,7 @@ class BulletJournal {
         textFont(materialFont);
         const icon = document.body.className === DARK ? "light_mode" : "dark_mode";
         this._ui.toggleTheme = drawButton(width - 30, 30, 40, 40, icon);
+        this._ui.toggleFullscreen = drawButton(width - 90, 30, 40, 40, "fit_screen")
         pop();
     }
 
@@ -424,6 +426,7 @@ class BulletJournal {
                     this._transitionTo(BulletJournal.JournalScreen.TODAYS_LOG);
                 }
                 if (pointInRect(pos_x, pos_y, this._ui.toggleTheme.bounds)) toggleTheme();
+                if (pointInRect(pos_x, pos_y, this._ui.toggleFullscreen.bounds)) toggleFullscreen();
                 if (pointInRect(pos_x, pos_y, this._ui.importData.bounds)) {
                     // TODO: reuse hidden file input instead of recreating
                     const input = document.createElement('input');
