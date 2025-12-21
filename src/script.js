@@ -7,8 +7,8 @@ let journal = new BulletJournal();
 
 let debugConfirmActive = false;
 let debugConfirmCallback = null;
-let debugYesPressed = { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false};
-let debugNoPressed = { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false};
+let debugYesPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false };
+let debugNoPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false };
 let font;
 let materialFont;
 
@@ -91,10 +91,19 @@ function mouseDragged() {
     return false;
 }
 
+
+function touchMoved() {
+    return false;
+}
+
 function mouseReleased() {
     if (state === MAIN && journal) {
         journal.touchEnded(mouseX, mouseY);
     }
+    return false;
+}
+
+function touchEnded() {
     return false;
 }
 
