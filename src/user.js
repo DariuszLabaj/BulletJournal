@@ -282,7 +282,7 @@ class UserData {
         text(txt, width / 2, height / 2);
     }
 
-    mousePressed() {
+    mousePressedAt(x, y) {
         if (this._scene !== UserData.UserScene.NEW_USER) return;
 
         const centerX = width / 2;
@@ -297,10 +297,9 @@ class UserData {
             h: fieldHeight,
         };
 
-        if (pointInRect(mouseX, mouseY, nameRect)) {
+        if (pointInRect(x, y, nameRect)) {
             this._ui.activeField = 'name';
             this._hiddenInput.elt.focus();
-            return;
         } else {
             // Clicked outside: lose focus
             this._ui.activeField = null;

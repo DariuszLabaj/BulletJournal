@@ -1,3 +1,4 @@
+console.log(navigator.userAgent);
 const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
 let state = LOADING;
 let loadingProgress = { value: 0 };
