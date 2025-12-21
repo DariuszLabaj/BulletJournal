@@ -112,16 +112,16 @@ function handleInputPress(x, y) {
 }
 
 function mousePressed() {
-    logm("mousePressed")
+    logm(`mouse pressed ${mouseX}, ${mousey}, ${touchX}, ${touchY}`)
     handleInputPress(mouseX, mouseY);
     return false;
 }
 
-function touchStarted() {
-    logm("touchStarted")
-    handleInputPress(mouseX, mouseY);
-    return false;
-}
+// function touchStarted() {
+//     logm("touchStarted")
+//     handleInputPress(mouseX, mouseY);
+//     return false;
+// }
 
 // function touchStarted() {
 //     if (isMobile) handleInputPress(mouseX, mouseY);
