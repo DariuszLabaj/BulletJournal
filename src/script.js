@@ -15,6 +15,7 @@ let materialFont;
 
 async function setup() {
     createCanvas(windowWidth, windowHeight);
+    document.body.style.touchAction = 'none';
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
     userData.initInput();
@@ -86,7 +87,6 @@ function windowResized() {
 }
 
 function handleInputPress(x, y) {
-    logm('Handling input pressed');
     if (debugConfirmActive) {
         if (debugYesPressed) {
             debugConfirmCallback?.();
@@ -112,11 +112,15 @@ function handleInputPress(x, y) {
 }
 
 function mousePressed() {
+    logm("mousePressed")
     handleInputPress(mouseX, mouseY);
+    return false;
 }
 
 function touchStarted() {
-    logm("TEst")
+    logm("touchStarted")
+    handleInputPress(mouseX, mouseY);
+    return false;
 }
 
 // function touchStarted() {
@@ -127,8 +131,8 @@ function mouseDragged() {
     if (state === MAIN && journal) {
         logm('Handling mouseDragged');
         journal.touchMoved(mouseX, mouseY);
-        return false;
     }
+    return false;
 }
 
 
@@ -144,6 +148,7 @@ function mouseReleased() {
         logm('Handling mouseReleased');
         journal.touchEnded(mouseX, mouseY);
     }
+    return false;
 }
 
 // function touchEnded() {
