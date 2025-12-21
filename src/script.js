@@ -116,7 +116,7 @@ function mousePressed() {
 }
 
 function touchStarted() {
-    if (isMobile) handleInputPress(touchX, touchY);
+    if (isMobile) handleInputPress(mouseX, mouseY);
 }
 
 function mouseDragged() {
@@ -131,7 +131,7 @@ function mouseDragged() {
 function touchMoved() {
     if (isMobile && state === MAIN && journal) {
         logm('Handling touchMoved');
-        journal.touchMoved(touchX, touchY);
+        journal.touchMoved(mouseX, mouseY);
         return false;
     }
 }
@@ -145,7 +145,7 @@ function mouseReleased() {
 function touchEnded() {
     if (isMobile && state === MAIN && journal) {
         logm('Handling touchEnded');
-        journal.touchEnded(touchX, touchY);
+        journal.touchEnded(mouseX, mouseY);
     }
 }
 
