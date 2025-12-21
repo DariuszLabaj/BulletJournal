@@ -20,6 +20,36 @@ async function setup() {
     userData.initInput();
 }
 
+const devLog = [];
+
+function logm(...args) {
+    devLog.push(
+        args.map(a => typeof a === 'object'
+            ? JSON.stringify(a)
+            : String(a)
+        ).join(' ')
+    );
+    if (devLog.length > 12) devLog.shift();
+    console.log(...args);
+}
+
+function drawDevConsole() {
+    push();
+    fill(0, 200);
+    rect(0, 0, width, 180);
+
+    fill(0, 255, 0);
+    textSize(12);
+    textAlign(LEFT, TOP);
+
+    let y = 8;
+    for (const line of devLog) {
+        text(line, 8, y, width - 16);
+        y += 14;
+    }
+    pop();
+}
+
 function draw() {
     switch (state) {
         case LOADING:
@@ -38,6 +68,9 @@ function draw() {
         // other states...
     }
     drawDebugOverlay();
+    if (isMobile) {
+        drawDevConsole();
+    }
 }
 
 function windowResized() {
@@ -51,6 +84,7 @@ function windowResized() {
 }
 
 function handleInputPress(x, y) {
+    logm('Handling input pressed');
     if (debugConfirmActive) {
         if (debugYesPressed) {
             debugConfirmCallback?.();
@@ -85,6 +119,7 @@ function touchStarted() {
 
 function mouseDragged() {
     if (!isMobile && state === MAIN && journal) {
+        logm('Handling mouseDragged');
         journal.touchMoved(mouseX, mouseY);
         return false;
     }
@@ -93,18 +128,21 @@ function mouseDragged() {
 
 function touchMoved() {
     if (isMobile && state === MAIN && journal) {
+        logm('Handling touchMoved');
         journal.touchMoved(touchX, touchY);
         return false;
     }
 }
 function mouseReleased() {
     if (!isMobile && state === MAIN && journal) {
+        logm('Handling mouseReleased');
         journal.touchEnded(mouseX, mouseY);
     }
 }
 
 function touchEnded() {
     if (isMobile && state === MAIN && journal) {
+        logm('Handling touchEnded');
         journal.touchEnded(touchX, touchY);
     }
 }
@@ -135,7 +173,7 @@ function keyPressed(event) {
             userData.keyPressed(key);
             break;
         case MAIN:
-            journal.keyPressed(key);
+            // journal.keyPressed(key);
             break;
     }
 }
