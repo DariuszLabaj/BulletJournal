@@ -46,6 +46,11 @@ class BulletJournal {
                 day: null,
                 taskID: null,
                 startTime: 0
+            },
+            visual: {
+                x: 0,
+                y: 0,
+                startTime: 0
             }
         };
 
@@ -97,7 +102,7 @@ class BulletJournal {
         } else {
             this._drawScreenContent(this._screen);
         }
-
+        this._drawTouchHoldIndicator();
         this._tick++;
         pop();
     }
@@ -427,8 +432,8 @@ class BulletJournal {
         const btnW = 60;
         const btnH = 60;
         const spacing = 10;
-        const startX = x + spacing + btnW/2;
-        const startY = y + 80 + btnH/2;
+        const startX = x + spacing + btnW / 2;
+        const startY = y + 80 + btnH / 2;
 
         this._ui.taskStatusModal.buttons = [];
 
@@ -517,32 +522,34 @@ class BulletJournal {
                         this._showData = this._userData.loadMonth(this._showData.year, this._showData.month);
                     }
                 }
-                break;
-        }
-        console.log(`touchStarted`);
-        this._touch.active = true;
-        this._touch.startX = pos_x;
-        this._touch.startY = pos_y;
-        this._touch.cell.day = null;
-        this._touch.cell.taskID = null;
-        this._touch.cell.startTime = millis();
-        if (this._pointInZone(pos_x, pos_y, this._zones.daysHeader)) {
-            this._touch.scrollMode = 'days';
-        }
-        else if (this._pointInZone(pos_x, pos_y, this._zones.taskLabels)) {
-            this._touch.scrollMode = 'tasks';
-        }
-        else {
-            // Todo Determinate Task id adn day by touch position with relation of scroll
-            const cell = this._getCellFromPosition(pos_x, pos_y);
-            if (cell) {
-                this._touch.cell.day = cell.day;
-                this._touch.cell.taskID = cell.taskID;
-            } else {
+                this._touch.active = true;
+                this._touch.startX = pos_x;
+                this._touch.startY = pos_y;
                 this._touch.cell.day = null;
                 this._touch.cell.taskID = null;
-            }
-            this._touch.scrollMode = null;
+                this._touch.cell.startTime = millis();
+                this._touch.visual.x = pos_x;
+                this._touch.visual.y = pos_y;
+                this._touch.visual.startTime = millis();
+                if (this._pointInZone(pos_x, pos_y, this._zones.daysHeader)) {
+                    this._touch.scrollMode = 'days';
+                }
+                else if (this._pointInZone(pos_x, pos_y, this._zones.taskLabels)) {
+                    this._touch.scrollMode = 'tasks';
+                }
+                else {
+                    // Todo Determinate Task id adn day by touch position with relation of scroll
+                    const cell = this._getCellFromPosition(pos_x, pos_y);
+                    if (cell) {
+                        this._touch.cell.day = cell.day;
+                        this._touch.cell.taskID = cell.taskID;
+                    } else {
+                        this._touch.cell.day = null;
+                        this._touch.cell.taskID = null;
+                    }
+                    this._touch.scrollMode = null;
+                }
+                break;
         }
     }
     _pointInZone(x, y, z) {
@@ -565,8 +572,10 @@ class BulletJournal {
         return { day: dayIndex, taskID: task.id };
     }
     touchMoved(pos_x, pos_y) {
-        if (!this._touch.active || !this._touch.scrollMode || this._ui.taskStatusModal.visible) return;
-        console.log(`touchMoved`);
+        if (!this._touch.active) return;
+        this._touch.visual.x = pos_x;
+        this._touch.visual.y = pos_y;
+        if (!this._touch.scrollMode || this._ui.taskStatusModal.visible) return;
         const dx = pos_x - this._touch.startX;
         const dy = pos_y - this._touch.startY;
 
@@ -586,27 +595,30 @@ class BulletJournal {
     touchEnded(pos_x, pos_y) {
         this._touch.active = false;
         this._touch.scrollMode = null;
-        
-        const cell = this._touch.cell;
-        if (!cell.day || !cell.taskID || this._ui.taskStatusModal.visible) return;
-        console.log(`touchEnded`);
 
-        const duration = millis() - cell.startTime;
+        if (this._ui.taskStatusModal.visible) return;
+        if (!this._touch.cell.day || !this._touch.cell.taskID) return;
+        const cell = this._getCellFromPosition(pos_x, pos_y);
+        if (!cell) return;
+        this._touch.cell.day = cell.day;
+        this._touch.cell.taskID = cell.taskID;
+        if (!this._touch.cell.day || !this._touch.cell.taskID) return;
+
+        const duration = millis() - this._touch.cell.startTime;
 
         if (duration < 500) {
-            const current = this._showData.grid[cell.day]?.[cell.taskID] ?? 0;
+            const current = this._showData.grid[this._touch.cell.day]?.[this._touch.cell.taskID] ?? 0;
             const value = current > 0 ? 0 : 100;
-            this._userData.setDayValue(this._showData.year, this._showData.month, cell.day, cell.taskID, value);
+            this._userData.setDayValue(this._showData.year, this._showData.month, this._touch.cell.day, this._touch.cell.taskID, value);
             this._showData = this._userData.loadMonth(this._showData.year, this._showData.month);
-        } else {
+        } else if (duration >= 500) {
             this._ui.taskStatusModal.visible = true;
-            cell.startTime = millis();
-            this._ui.taskStatusModal.cell = cell;
-            this._ui.taskStatusModal.value = this._showData.grid[cell.day]?.[cell.taskID] ?? 0;
+            this._touch.cell.startTime = millis();
+            this._ui.taskStatusModal.cell = this._touch.cell;
+            this._ui.taskStatusModal.value = this._showData.grid[this._touch.cell.day]?.[this._touch.cell.taskID] ?? 0;
         }
     }
     _handleTaskStatusModalTouch(pos_x, pos_y) {
-        const modal = this._ui.taskStatusModal;
         const modalRect = {
             x: (width - 360) / 2,
             y: (height - 260) / 2,
@@ -614,25 +626,50 @@ class BulletJournal {
             h: 260
         };
         if (!pointInRect(pos_x, pos_y, modalRect)) {
-            modal.visible = false;
+            this._ui.taskStatusModal.visible = false;
+            this._ui.taskStatusModal.cell.startTime = millis();
+            this._ui.taskStatusModal.cell.day = null;
+            this._ui.taskStatusModal.cell.taskID = null;
+            this._touch.cell.startTime = 0;
+            this._touch.cell.day = null;
+            this._touch.cell.taskID = null;
             return;
         }
-        for (const b of modal.buttons) {
+        for (const b of this._ui.taskStatusModal.buttons) {
             if (pointInRect(pos_x, pos_y, b.bounds)) {
-                modal.value = b.value;
+                this._ui.taskStatusModal.value = b.value;
             }
         }
-        if (pointInRect(pos_x, pos_y, modal.confirm.bounds)) {
+        if (pointInRect(pos_x, pos_y, this._ui.taskStatusModal.confirm.bounds)) {
             const { year, month } = this._showData;
-            const { day, taskID } = modal.cell;
+            const { day, taskID } = this._ui.taskStatusModal.cell;
             this._userData.setDayValue(
-                year, month, day, taskID, modal.value
+                year, month, day, taskID, this._ui.taskStatusModal.value
             );
             this._showData = this._userData.loadMonth(year, month);
-            modal.visible = false;
-            modal.cell.startTime = millis();
-            modal.cell.day = null;
-            modal.cell.taskID = null;
+            this._ui.taskStatusModal.visible = false;
+            this._ui.taskStatusModal.cell.startTime = millis();
+            this._ui.taskStatusModal.cell.day = null;
+            this._ui.taskStatusModal.cell.taskID = null;
+            this._touch.cell.startTime = 0;
+            this._touch.cell.day = null;
+            this._touch.cell.taskID = null;
         }
+    }
+    _drawTouchHoldIndicator() {
+        if (!this._touch.active) return;
+        if (this._touch.scrollMode) return; // don’t show while scrolling
+        if (this._ui.taskStatusModal.visible) return;
+
+        const elapsed = millis() - this._touch.visual.startTime;
+        if (elapsed < 100) return;
+        const progress = constrain((elapsed - 100) / (500 - 100), 0, 1);
+        const radius = lerp(5, 40, progress);
+
+        const c = color(getCSSVariable('--on-surface-variant'));
+        c.setAlpha(128);
+        fill(c);
+        noStroke();
+        circle(this._touch.visual.x, this._touch.visual.y, radius * 2);
     }
 }
