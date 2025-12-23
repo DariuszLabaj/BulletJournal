@@ -19,17 +19,17 @@ class BulletJournal {
         this._transitionSpeed = 0.01;
 
         this._ui = {
-            toggleTheme: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            openTodayLog: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            importData: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            exportData: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            backButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            addTaskButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            removeTaskButton: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            prevMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            nextMonth: { bounds: {x: -100, y: -100, w: -100, h: -100}, isHover: false},
-            setTaskStatusModel: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            toggleTheme: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            openTodayLog: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            importData: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            exportData: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            backButton: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            addTaskButton: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            removeTaskButton: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            prevMonth: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            nextMonth: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
             toggleFullscreen: { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false },
+            taskStatusModal: { visible: false, cell: null, value: 0, buttons: [], confirm: { x: -100, y: -100, w: -100, h: -100 } },
         };
 
         this._zones = {
@@ -106,9 +106,15 @@ class BulletJournal {
         switch (screen) {
             case BulletJournal.JournalScreen.OVERVIEW:
                 this._drawOverview();
+                if (this._ui.taskStatusModal.visible) {
+                    this._ui.taskStatusModal.visible = false;
+                }
                 break;
             case BulletJournal.JournalScreen.TODAYS_LOG:
                 this._drawTasksView();
+                if (this._ui.taskStatusModal.visible) {
+                    this._drawTaskStatusModal();
+                }
                 break;
         }
     }
@@ -197,17 +203,6 @@ class BulletJournal {
         fill(c);
         rect(0, 0, width, height);
     }
-
-    /* ───────────────────────── TODO ────────────────────────────── */
-
-    // TODO:
-    // - Replace prompt() modals with in-canvas UI
-    // - Extract grid rendering into reusable components
-    // - Add task status modal (long-press)
-    // - Keyboard navigation
-    // - Undo / redo
-    // - Accessibility (contrast, font scaling)
-    // - Autosave indicator
 
     _drawVerticalGrid(config) {
         const { x, y, w, h, CELL, HEADER, tasks, grid, year, month } = config
@@ -411,6 +406,42 @@ class BulletJournal {
         this._scroll.maxY = max(0, CELL * (tasks.length + 1) - h + CELL);
     }
 
+    _drawTaskStatusModal() {
+        const modalW = 360;
+        const modalH = 260;
+        const x = (width - modalW) / 2;
+        const y = (height - modalH) / 2;
+
+        fill(0, 120);
+        rect(0, 0, width, height);
+
+        fill(getCSSVariable('--surface-container'));
+        rect(x, y, modalW, modalH, 16);
+
+        fill(getCSSVariable('--on-surface'));
+        textAlign(CENTER, TOP);
+        textSize(20);
+        text("Set task status", x + modalW / 2, y + 20);
+
+        const presets = [0, 25, 50, 75, 100];
+        const btnW = 60;
+        const btnH = 60;
+        const spacing = 10;
+        const startX = x + spacing + btnW/2;
+        const startY = y + 80 + btnH/2;
+
+        this._ui.taskStatusModal.buttons = [];
+
+        presets.forEach((v, i) => {
+            const bx = startX + i * (btnW + spacing);
+            const by = startY;
+            const active = this._ui.taskStatusModal.value === v;
+            fill(active ? getCSSVariable('--primary-container') : getCSSVariable('--surface-container-lowest'));
+            const bounds = drawButton(bx, by, btnW, btnH, v.toString());
+            this._ui.taskStatusModal.buttons.push({ value: v, bounds: bounds.bounds });
+        });
+        this._ui.taskStatusModal.confirm = drawButton(x + modalW / 2, y + modalH - btnH, 120, btnH, "Save");
+    }
 
     touchStarted(pos_x, pos_y) {
         switch (this._screen) {
@@ -449,6 +480,10 @@ class BulletJournal {
                 }
                 break;
             case BulletJournal.JournalScreen.TODAYS_LOG:
+                if (this._ui.taskStatusModal.visible) {
+                    this._handleTaskStatusModalTouch(pos_x, pos_y);
+                    return;
+                }
                 if (pointInRect(pos_x, pos_y, this._ui.backButton.bounds)) {
                     this._transitionTo(BulletJournal.JournalScreen.OVERVIEW);
                 }
@@ -484,10 +519,13 @@ class BulletJournal {
                 }
                 break;
         }
+        console.log(`touchStarted`);
         this._touch.active = true;
         this._touch.startX = pos_x;
         this._touch.startY = pos_y;
-    
+        this._touch.cell.day = null;
+        this._touch.cell.taskID = null;
+        this._touch.cell.startTime = millis();
         if (this._pointInZone(pos_x, pos_y, this._zones.daysHeader)) {
             this._touch.scrollMode = 'days';
         }
@@ -500,7 +538,9 @@ class BulletJournal {
             if (cell) {
                 this._touch.cell.day = cell.day;
                 this._touch.cell.taskID = cell.taskID;
-                this._touch.cell.startTime = millis();
+            } else {
+                this._touch.cell.day = null;
+                this._touch.cell.taskID = null;
             }
             this._touch.scrollMode = null;
         }
@@ -525,8 +565,8 @@ class BulletJournal {
         return { day: dayIndex, taskID: task.id };
     }
     touchMoved(pos_x, pos_y) {
-        if (!this._touch.active || !this._touch.scrollMode) return;
-
+        if (!this._touch.active || !this._touch.scrollMode || this._ui.taskStatusModal.visible) return;
+        console.log(`touchMoved`);
         const dx = pos_x - this._touch.startX;
         const dy = pos_y - this._touch.startY;
 
@@ -546,20 +586,53 @@ class BulletJournal {
     touchEnded(pos_x, pos_y) {
         this._touch.active = false;
         this._touch.scrollMode = null;
-
+        
         const cell = this._touch.cell;
-        if (!cell.day || !cell.taskID) return;
+        if (!cell.day || !cell.taskID || this._ui.taskStatusModal.visible) return;
+        console.log(`touchEnded`);
 
         const duration = millis() - cell.startTime;
 
-        if (duration < 300) {
+        if (duration < 500) {
             const current = this._showData.grid[cell.day]?.[cell.taskID] ?? 0;
             const value = current > 0 ? 0 : 100;
             this._userData.setDayValue(this._showData.year, this._showData.month, cell.day, cell.taskID, value);
             this._showData = this._userData.loadMonth(this._showData.year, this._showData.month);
         } else {
-            this._ui.setTaskStatusModel = true;
-            this._ui.selectedCell = cell;
+            this._ui.taskStatusModal.visible = true;
+            cell.startTime = millis();
+            this._ui.taskStatusModal.cell = cell;
+            this._ui.taskStatusModal.value = this._showData.grid[cell.day]?.[cell.taskID] ?? 0;
+        }
+    }
+    _handleTaskStatusModalTouch(pos_x, pos_y) {
+        const modal = this._ui.taskStatusModal;
+        const modalRect = {
+            x: (width - 360) / 2,
+            y: (height - 260) / 2,
+            w: 360,
+            h: 260
+        };
+        if (!pointInRect(pos_x, pos_y, modalRect)) {
+            modal.visible = false;
+            return;
+        }
+        for (const b of modal.buttons) {
+            if (pointInRect(pos_x, pos_y, b.bounds)) {
+                modal.value = b.value;
+            }
+        }
+        if (pointInRect(pos_x, pos_y, modal.confirm.bounds)) {
+            const { year, month } = this._showData;
+            const { day, taskID } = modal.cell;
+            this._userData.setDayValue(
+                year, month, day, taskID, modal.value
+            );
+            this._showData = this._userData.loadMonth(year, month);
+            modal.visible = false;
+            modal.cell.startTime = millis();
+            modal.cell.day = null;
+            modal.cell.taskID = null;
         }
     }
 }
