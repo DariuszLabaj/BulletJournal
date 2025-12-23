@@ -441,8 +441,21 @@ class BulletJournal {
             const bx = startX + i * (btnW + spacing);
             const by = startY;
             const active = this._ui.taskStatusModal.value === v;
-            fill(active ? getCSSVariable('--primary-container') : getCSSVariable('--surface-container-lowest'));
             const bounds = drawButton(bx, by, btnW, btnH, v.toString());
+            if (active) {
+                push();
+                let c = color(getCSSVariable('--tertiary'));
+                c.setAlpha(190);
+                fill(c);
+                rect(bx - btnW / 2, by - btnH / 2 - 1, btnW, btnH, min(btnW / 2, btnH / 2));
+                c = color(getCSSVariable('--on-tertiary'));
+                c.setAlpha(190);
+                fill(c);
+                textAlign(CENTER, CENTER);
+                SetFontSize(18);
+                text(v.toString(), bx, by);
+                pop();
+            }
             this._ui.taskStatusModal.buttons.push({ value: v, bounds: bounds.bounds });
         });
         this._ui.taskStatusModal.confirm = drawButton(x + modalW / 2, y + modalH - btnH, 120, btnH, "Save");
