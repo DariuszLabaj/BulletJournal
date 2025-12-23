@@ -7,8 +7,9 @@ class BulletJournal {
         TRANSITION: 'transition',
     })
 
-    constructor(userData) {
+    constructor(userData, sfx) {
         this._userData = userData;
+        this._sfx = sfx
 
         this._tick = 0;
         this._screen = BulletJournal.JournalScreen.BLANK;
@@ -551,6 +552,7 @@ class BulletJournal {
                     this._touch.scrollMode = 'tasks';
                 }
                 else {
+                    userStartAudio();
                     // Todo Determinate Task id adn day by touch position with relation of scroll
                     const cell = this._getCellFromPosition(pos_x, pos_y);
                     if (cell) {
@@ -623,6 +625,11 @@ class BulletJournal {
             const current = this._showData.grid[this._touch.cell.day]?.[this._touch.cell.taskID] ?? 0;
             const value = current > 0 ? 0 : 100;
             this._userData.setDayValue(this._showData.year, this._showData.month, this._touch.cell.day, this._touch.cell.taskID, value);
+            const sfx = this._sfx?.toggle;
+            if (sfx) {
+                sfx.stop();   // prevents overlap on rapid taps
+                sfx.play();
+            }
             this._showData = this._userData.loadMonth(this._showData.year, this._showData.month);
         } else if (duration >= 500) {
             this._ui.taskStatusModal.visible = true;

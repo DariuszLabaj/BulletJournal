@@ -7,6 +7,7 @@ let journal = new BulletJournal();
 
 let debugConfirmActive = false;
 let debugConfirmCallback = null;
+let sfx = {};
 let debugYesPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false };
 let debugNoPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false };
 let font;
@@ -14,6 +15,7 @@ let materialFont;
 
 async function setup() {
     createCanvas(windowWidth, windowHeight);
+    sfx.toggle = await loadSound("assets\\sfx.wav");
     document.body.style.touchAction = 'none';
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
@@ -28,7 +30,7 @@ function draw() {
         case NEW_USER_SETUP:
             userData.draw();
             if (userData.scene === UserData.UserScene.READY) {
-                journal = new BulletJournal(userData);
+                journal = new BulletJournal(userData, sfx);
                 state = MAIN;
             }
             break;
@@ -150,9 +152,14 @@ function drawLoadingScreen() {
 async function loadDataAsync(progress) {
     total = 3;
     fulfilled = 0;
-    const userDataPromise = Promise.resolve().then(() => userData.load()).then(() => { fulfilled++; progress.value = fulfilled / total; });
-    const fontPromise = loadFont("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap").then(f => { font = f; fulfilled++; progress.value = fulfilled / total; });
-    const materialFontPromise = loadFont("assets\\MaterialSymbolsOutlined-VariableFont_FILL,GRAD,opsz,wght.ttf").then(f => { materialFont = f; fulfilled++; progress.value = fulfilled / total; });
+    const advance = () => {
+        fulfilled++;
+        progress.value = fulfilled / total;
+    }
+
+    const userDataPromise = Promise.resolve().then(() => userData.load()).then(advance);
+    const fontPromise = loadFont("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap").then(f => { font = f; advance(); });
+    const materialFontPromise = loadFont("assets\\MaterialSymbolsOutlined-VariableFont_FILL,GRAD,opsz,wght.ttf").then(f => { materialFont = f; advance(); });
     await Promise.all([userDataPromise, fontPromise, materialFontPromise]);
 }
 
