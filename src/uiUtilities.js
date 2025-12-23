@@ -46,9 +46,10 @@ function drawButton(cx, cy, w, h, label, x_offset = 0, y_offset = 0) {
     h: h,
   }
   const isHover = mouseX >= x - x_offset && mouseX <= x - x_offset + w && mouseY >= y - y_offset && mouseY <= y - y_offset + h;
-  fill(isHover ? getCSSVariable('--primary-fixed-dim') : getCSSVariable('--primary'));
+  noStroke();
+  fill(isHover ? getCSSVariable('--secondary') : getCSSVariable('--primary'));
   rect(x, y, w, h, min(h/2, w/2));
-  fill(isHover ? getCSSVariable('--on-primary-fixed-variant') : getCSSVariable('--on-primary'));
+  fill(isHover ? getCSSVariable('--on-secondary') : getCSSVariable('--on-primary'));
   textAlign(CENTER, CENTER);
   SetFontSize(18);
   text(label, cx, cy);

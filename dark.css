@@ -49,3 +49,10 @@
   --surface-container-high: rgb(39 42 47);
   --surface-container-highest: rgb(50 53 58);
 }
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
