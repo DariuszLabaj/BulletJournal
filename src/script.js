@@ -16,6 +16,7 @@ let materialFont;
 async function setup() {
     createCanvas(windowWidth, windowHeight);
     sfx.toggle = await loadSound("assets\\sfx.wav");
+    sfx.toggle.amp(0.3, 0.05);
     document.body.style.touchAction = 'none';
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
