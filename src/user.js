@@ -200,7 +200,7 @@ class UserData {
     _drawSceneContent(scene) {
         switch (scene) {
             case UserData.UserScene.LOADING:
-                this._centerText('Loading user data...');
+                this._centerText(strings.get("loading_user_data"));
                 break;
             case UserData.UserScene.WELCOME:
                 this._drawWelcomeNewUser();
@@ -217,7 +217,7 @@ class UserData {
     }
 
     _drawWelcomeNewUser() {
-        this._centerText("Welcome! Let's create your profile.");
+        this._centerText(strings.get("welcome_lets_create_your_profile"));
         if (this._tick >= 60) {
             this._transitionTo(UserData.UserScene.NEW_USER);
         }
@@ -237,7 +237,7 @@ class UserData {
         textAlign(CENTER, CENTER);
         fill(getCSSVariable('--on-background'));
         SetFontSize(28);
-        text("Set Up Your Profile", centerX, startY - 50);
+        text(strings.get("set_up_your_profile"), centerX, startY - 50);
 
         this._hiddenInput.value(this._ui.nameBuffer);
 
@@ -250,11 +250,11 @@ class UserData {
             this._ui.activeField === 'name'
         );
 
-        this._ui.buttonHover = drawButton(centerX, startY + 100, 150, 50, "Continue");
+        this._ui.buttonHover = drawButton(centerX, startY + 100, 150, 50, strings.get("continue"));
     }
 
     _drawGreetings() {
-        this._centerText(`Welcome back, ${this._name || 'User'}!`);
+        this._centerText(strings.get("welcome_back_user", this._name || strings.get("user")));
         if (this._tick >= 60) {
             this._transitionTo(UserData.UserScene.READY);
         }
@@ -318,7 +318,7 @@ class UserData {
             this._hiddenInput.elt.blur();
         }
 
-        if (pointInRect(this._ui.buttonHover.bounds)) {
+        if (pointInRect(pos_x, pos_y, this._ui.buttonHover.bounds)) {
             this._confirmNewUser();
         }
 

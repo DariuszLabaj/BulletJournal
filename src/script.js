@@ -12,11 +12,10 @@ let debugYesPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover:
 let debugNoPressed = { bounds: { x: -100, y: -100, w: -100, h: -100 }, isHover: false };
 let font;
 let materialFont;
+let strings;
 
 async function setup() {
     createCanvas(windowWidth, windowHeight);
-    sfx.toggle = await loadSound("assets\\sfx.wav");
-    sfx.toggle.amp(0.3, 0.05);
     document.body.style.touchAction = 'none';
     progressBar = new ProgressBar(width / 2, height / 2, width * 0.6, 30);
     loadDataAsync(loadingProgress);
@@ -62,7 +61,7 @@ function handleInputPress(x, y) {
             return;
         }
 
-        if (pointsInRect(x, y, debugNoPressed.bounds)) {
+        if (pointInRect(x, y, debugNoPressed.bounds)) {
             debugConfirmActive = false;
             debugConfirmCallback = null;
             return;
@@ -151,7 +150,7 @@ function drawLoadingScreen() {
 }
 
 async function loadDataAsync(progress) {
-    total = 3;
+    total = 5;
     fulfilled = 0;
     const advance = () => {
         fulfilled++;
@@ -160,8 +159,10 @@ async function loadDataAsync(progress) {
 
     const userDataPromise = Promise.resolve().then(() => userData.load()).then(advance);
     const fontPromise = loadFont("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap").then(f => { font = f; advance(); });
+    const internationalizationPromise = loadJSON("assets\\strings.json").then(s => { strings = new ResourceManager(s); advance() });
     const materialFontPromise = loadFont("assets\\MaterialSymbolsOutlined-VariableFont_FILL,GRAD,opsz,wght.ttf").then(f => { materialFont = f; advance(); });
-    await Promise.all([userDataPromise, fontPromise, materialFontPromise]);
+    const sfxPromise = loadSound("assets\\sfx.wav").then(s => { sfx.toggle = s; sfx.toggle.amp(0.25, 0.05); advance(); });
+    await Promise.all([userDataPromise, fontPromise, materialFontPromise, sfxPromise, internationalizationPromise]);
 }
 
 function toggleTheme() {
@@ -181,7 +182,7 @@ function drawDebugOverlay() {
     fill(255);
     textAlign(CENTER, CENTER);
     textSize(24);
-    text("DEBUG: Clear ALL localStorage?", width / 2, height / 2 - 40);
+    text(strings.get("debug_clear_all_local_storage"), width / 2, height / 2 - 40);
 
     // Buttons
     const btnW = 120;
@@ -193,8 +194,8 @@ function drawDebugOverlay() {
     const noX = cx + spacing / 2;
     const y = height / 2 + 20;
 
-    debugYesPressed = drawButton(yesX + btnW / 2, y + btnH / 2, btnW, btnH, "YES");
-    debugNoPressed = drawButton(noX + btnW / 2, y + btnH / 2, btnW, btnH, "NO");
+    debugYesPressed = drawButton(yesX + btnW / 2, y + btnH / 2, btnW, btnH, strings.get("yes"));
+    debugNoPressed = drawButton(noX + btnW / 2, y + btnH / 2, btnW, btnH, strings.get("no"));
 
     pop();
 }

@@ -135,16 +135,16 @@ class BulletJournal {
         const startY = height / 2 - btnH;
 
         noStroke();
-        this._ui.openTodayLog = drawButton(centerX, startY, btnW, btnH, "Journal");
-        this._ui.importData = drawButton(centerX, startY + btnH + spacing, btnW, btnH, "Import");
-        this._ui.exportData = drawButton(centerX, startY + 2 * btnH + 2 * spacing, btnW, btnH, "Export");
+        this._ui.openTodayLog = drawButton(centerX, startY, btnW, btnH, strings.get("journal"));
+        this._ui.importData = drawButton(centerX, startY + btnH + spacing, btnW, btnH, strings.get("import"));
+        this._ui.exportData = drawButton(centerX, startY + 2 * btnH + 2 * spacing, btnW, btnH, strings.get("export"));
     }
 
     _drawMainHeader() {
         fill(getCSSVariable('--on-background'));
         textSize(32);
         textAlign(LEFT, TOP);
-        text(`Hi ${this._userData.name || 'Guest'}!`, 10, 10);
+        text(strings.get("hi_guest", this._userData.name || strings.get("guest")), 10, 10);
 
         push();
         textFont(materialFont);
@@ -427,7 +427,7 @@ class BulletJournal {
         fill(getCSSVariable('--on-surface'));
         textAlign(CENTER, TOP);
         textSize(20);
-        text("Set task status", x + modalW / 2, y + 20);
+        text(strings.get("set_task_status"), x + modalW / 2, y + 20);
 
         const presets = [0, 25, 50, 75, 100];
         const btnW = 60;
@@ -459,7 +459,7 @@ class BulletJournal {
             }
             this._ui.taskStatusModal.buttons.push({ value: v, bounds: bounds.bounds });
         });
-        this._ui.taskStatusModal.confirm = drawButton(x + modalW / 2, y + modalH - btnH, 120, btnH, "Save");
+        this._ui.taskStatusModal.confirm = drawButton(x + modalW / 2, y + modalH - btnH, 120, btnH, strings.get("save"));
     }
 
     touchStarted(pos_x, pos_y) {
